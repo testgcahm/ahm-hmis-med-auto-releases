@@ -241,58 +241,80 @@ New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 
 try {
     $needsBeta = @($targetDirectories | Where-Object { $_.IsBeta }).Count -gt 0
-    $needsStable = @($targetDirectories | Where-Object { -not $_.IsBeta }).Count -gt 0
+        $needsStable = @($targetDirectories | Where-Object { -not $_.IsBeta }).Count -gt 0
 
     $packages = @{}
 
     # Helper function to acquire and extract package
-    function Get-UpdatePackage {
-        param(
-            [string]$zipName,
-            [string]$remoteUrl,
-            [string]$destDir,
-            [string]$targetChannel,
-            [string]$expectedVer
-        )
-
+    function Get-UpdatePackage([string]$zipName, [string]$remoteUrl, [string]$destDir, [string]$targetChannel, [string]$expectedVer) {
         $targetZip = Join-Path $tempRoot $zipName
-        $sep = if ($remoteUrl.Contains('?')) { '&' } else { '?' }
-        $cacheBustUrl = $remoteUrl + $sep + "_t=" + [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-
-        Write-Host "  Downloading latest $targetChannel package..." -ForegroundColor Gray
         $downloaded = $false
 
-        # 1. Try curl.exe with no-cache headers
-        if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
-            try {
-                & curl.exe -s -f -L -H "Cache-Control: no-cache" -H "Pragma: no-cache" $cacheBustUrl -o $targetZip
-                if ((Test-Path $targetZip) -and ((Get-Item $targetZip).Length -gt 1000)) {
-                    $downloaded = $true
-                }
-            } catch {}
+        # Build fallback URL list
+        $urlsToTry = @()
+        if ($remoteUrl -and ($remoteUrl -like "http*")) {
+            $urlsToTry += $remoteUrl
         }
+        $urlsToTry += "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/$zipName"
+        $urlsToTry += "https://testgcahm.github.io/ahm-hmis-med-auto-releases/$zipName"
+        $urlsToTry += "https://hmis-ahm-gmc.vercel.app/$zipName"
 
-        # 2. Fallback to Invoke-WebRequest
-        if (-not $downloaded) {
-            try {
-                Invoke-WebRequest -Uri $cacheBustUrl -OutFile $targetZip -UseBasicParsing -Headers @{ "Cache-Control" = "no-cache"; "Pragma" = "no-cache" } -ErrorAction Stop
-                if ((Test-Path $targetZip) -and ((Get-Item $targetZip).Length -gt 1000)) {
-                    $downloaded = $true
-                }
-            } catch {}
-        }
+        Write-Host "  Downloading latest $targetChannel package..." -ForegroundColor Gray
 
-        # 3. Fallback to Net.WebClient
-        if (-not $downloaded) {
-            try {
-                $wc = New-Object Net.WebClient
-                $wc.Headers.Add("Cache-Control", "no-cache")
-                $wc.Headers.Add("Pragma", "no-cache")
-                $wc.DownloadFile($cacheBustUrl, $targetZip)
-                if ((Test-Path $targetZip) -and ((Get-Item $targetZip).Length -gt 1000)) {
-                    $downloaded = $true
-                }
-            } catch {}
+        foreach ($tryUrl in $urlsToTry) {
+            if ($downloaded) { break }
+            if (-not $tryUrl -or -not ($tryUrl -like "http*")) { continue }
+
+            $sep = if ($tryUrl.Contains("?")) { "&" } else { "?" }
+            $cacheBustUrl = $tryUrl + $sep + "_t=" + [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+
+            # 1. Try curl.exe
+            if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+                try {
+                    if (Test-Path $targetZip) { Remove-Item $targetZip -Force -ErrorAction SilentlyContinue }
+                    & curl.exe -s -f -L -H "Cache-Control: no-cache" -H "Pragma: no-cache" $cacheBustUrl -o $targetZip
+                    if ((Test-Path $targetZip) -and ((Get-Item $targetZip).Length -gt 1000)) {
+                        $bytes = [System.IO.File]::ReadAllBytes($targetZip)
+                        if ($bytes.Length -gt 4 -and $bytes[0] -eq 0x50 -and $bytes[1] -eq 0x4B) {
+                            $downloaded = $true
+                            break
+                        }
+                    }
+                } catch {}
+            }
+
+            # 2. Fallback to Invoke-WebRequest
+            if (-not $downloaded) {
+                try {
+                    if (Test-Path $targetZip) { Remove-Item $targetZip -Force -ErrorAction SilentlyContinue }
+                    Invoke-WebRequest -Uri $cacheBustUrl -OutFile $targetZip -UseBasicParsing -Headers @{ "Cache-Control" = "no-cache"; "Pragma" = "no-cache" } -ErrorAction Stop
+                    if ((Test-Path $targetZip) -and ((Get-Item $targetZip).Length -gt 1000)) {
+                        $bytes = [System.IO.File]::ReadAllBytes($targetZip)
+                        if ($bytes.Length -gt 4 -and $bytes[0] -eq 0x50 -and $bytes[1] -eq 0x4B) {
+                            $downloaded = $true
+                            break
+                        }
+                    }
+                } catch {}
+            }
+
+            # 3. Fallback to Net.WebClient
+            if (-not $downloaded) {
+                try {
+                    if (Test-Path $targetZip) { Remove-Item $targetZip -Force -ErrorAction SilentlyContinue }
+                    $wc = New-Object Net.WebClient
+                    $wc.Headers.Add("Cache-Control", "no-cache")
+                    $wc.Headers.Add("Pragma", "no-cache")
+                    $wc.DownloadFile($cacheBustUrl, $targetZip)
+                    if ((Test-Path $targetZip) -and ((Get-Item $targetZip).Length -gt 1000)) {
+                        $bytes = [System.IO.File]::ReadAllBytes($targetZip)
+                        if ($bytes.Length -gt 4 -and $bytes[0] -eq 0x50 -and $bytes[1] -eq 0x4B) {
+                            $downloaded = $true
+                            break
+                        }
+                    }
+                } catch {}
+            }
         }
 
         # 4. Fallback: Only if remote download completely failed (e.g. offline)
@@ -311,10 +333,13 @@ try {
 
             foreach ($lp in $candidatePaths) {
                 if ($lp -and (Test-Path $lp) -and ((Get-Item $lp).Length -gt 1000)) {
-                    Write-Host "  Using local fallback package: $lp" -ForegroundColor Gray
-                    Copy-Item $lp -Destination $targetZip -Force
-                    $downloaded = $true
-                    break
+                    $bytes = [System.IO.File]::ReadAllBytes($lp)
+                    if ($bytes.Length -gt 4 -and $bytes[0] -eq 0x50 -and $bytes[1] -eq 0x4B) {
+                        Write-Host "  Using local fallback package: $lp" -ForegroundColor Gray
+                        Copy-Item $lp -Destination $targetZip -Force
+                        $downloaded = $true
+                        break
+                    }
                 }
             }
         }
@@ -389,13 +414,21 @@ try {
     Write-Host "[3/4] Preparing update packages..." -ForegroundColor Yellow
 
     if ($needsStable) {
-        $stableUrl = if ($remoteMeta -and $remoteMeta.links -and $remoteMeta.links.stableZip) { $remoteMeta.links.stableZip } else { "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/extension.zip" }
+        $stableUrl = if ($remoteMeta -and $remoteMeta.links -and $remoteMeta.links.stableZip -and ($remoteMeta.links.stableZip -like "http*")) { 
+            $remoteMeta.links.stableZip 
+        } else { 
+            "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/extension.zip" 
+        }
         $stableExtract = Join-Path $tempRoot "stable_extracted"
         $packages["Stable"] = Get-UpdatePackage -zipName "extension.zip" -remoteUrl $stableUrl -destDir $stableExtract -targetChannel "Stable" -expectedVer $stableVer
     }
 
     if ($needsBeta) {
-        $betaUrl = if ($remoteMeta -and $remoteMeta.links -and $remoteMeta.links.betaZip) { $remoteMeta.links.betaZip } else { "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/beta.zip" }
+        $betaUrl = if ($remoteMeta -and $remoteMeta.links -and $remoteMeta.links.betaZip -and ($remoteMeta.links.betaZip -like "http*")) { 
+            $remoteMeta.links.betaZip 
+        } else { 
+            "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/beta.zip" 
+        }
         $betaExtract = Join-Path $tempRoot "beta_extracted"
         $packages["Beta"] = Get-UpdatePackage -zipName "beta.zip" -remoteUrl $betaUrl -destDir $betaExtract -targetChannel "Beta" -expectedVer $betaVer
     }
