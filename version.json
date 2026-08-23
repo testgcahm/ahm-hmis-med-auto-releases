@@ -1,0 +1,20 @@
+{
+  "version": "2.0.5",
+  "versionName": "2.0.5",
+  "betaVersion": "2.0.5.1",
+  "betaVersionName": "2.0.5-beta",
+  "releaseDate": "2026-08-23",
+  "minExtensionVersion": "1.0.0",
+  "changelog": [
+    "⚡ Beta Fast API streamlined to 1 single combined Livewire request",
+    "🛡️ Instant #livewire-error modal auto-dismissal via dedicated DOM MutationObserver",
+    "🔄 Livewire Sync strictly triggered as on-save error recovery without running prematurely",
+    "⏱️ 10s Save popup wait with intelligent background polling on slow WiFi after error resolution",
+    "🔒 Fixed SweetAlert2 save confirmation popup preservation during save polling"
+  ],
+  "links": {
+    "stableZip": "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/extension.zip",
+    "betaZip": "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/beta.zip",
+    "updateBat": "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/update.bat"
+  }
+}

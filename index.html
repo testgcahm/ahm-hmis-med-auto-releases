@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HMIS Med Auto — Extension Download</title>
+
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💊</text></svg>">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --body-bg: #f5f5f7;
+      --text: #1d1d1f;
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(0, 0, 0, 0.08);
+
+      --heading: #1d1d1f;
+      --subtitle: #6e6e73;
+      --footer: #86868b;
+      --footer-border: rgba(0, 0, 0, 0.08);
+
+      --code-bg: #f5f5f7;
+      --code-text: #6e6e73;
+
+      --secondary-bg: #f5f5f7;
+      --secondary-text: #1d1d1f;
+      --secondary-border: rgba(0, 0, 0, 0.08);
+      --secondary-hover-bg: #e8e8ed;
+
+      --theme-bg: rgba(245, 245, 247, 0.9);
+      --theme-border: rgba(0, 0, 0, 0.08);
+      --theme-text: #1d1d1f;
+
+      --stable-bg: #1d1d1f;
+      --stable-hover: #333336;
+      --stable-border: #1d1d1f;
+
+      --updater-bg: #2f6f68;
+      --updater-hover: #285f59;
+      --updater-border: #3f827a;
+    }
+
+    body.dark {
+      --body-bg: #000000;
+      --text: #f5f5f7;
+      --card-bg: rgba(28, 28, 30, 0.92);
+      --card-border: rgba(255, 255, 255, 0.1);
+
+      --heading: #f5f5f7;
+      --subtitle: #a1a1a6;
+      --footer: #86868b;
+      --footer-border: rgba(255, 255, 255, 0.1);
+
+      --code-bg: #1c1c1e;
+      --code-text: #a1a1a6;
+
+      --secondary-bg: #1c1c1e;
+      --secondary-text: #f5f5f7;
+      --secondary-border: rgba(255, 255, 255, 0.1);
+      --secondary-hover-bg: #2c2c2e;
+
+      --theme-bg: rgba(28, 28, 30, 0.9);
+      --theme-border: rgba(255, 255, 255, 0.1);
+      --theme-text: #f5f5f7;
+
+      --stable-bg: #f5f5f7;
+      --stable-hover: #ffffff;
+      --stable-border: #f5f5f7;
+
+      --updater-bg: #28645e;
+      --updater-hover: #34766f;
+      --updater-border: #3d8078;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--body-bg);
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--body-bg);
+      color: var(--text);
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "SF Pro Text",
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+      padding: 20px;
+      transition:
+        background 0.3s ease,
+        color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 440px;
+      padding: 38px 30px 30px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      text-align: center;
+      position: relative;
+
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.06),
+        0 2px 8px rgba(0, 0, 0, 0.03);
+
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+
+      transition:
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+    }
+
+    body.dark .card {
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.35),
+        0 1px 4px rgba(255, 255, 255, 0.03);
+    }
+
+    /* Theme button */
+
+    .theme-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+
+      width: 32px;
+      height: 32px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid var(--theme-border);
+      border-radius: 50%;
+
+      background: var(--theme-bg);
+      color: var(--theme-text);
+
+      cursor: pointer;
+      font-size: 14px;
+
+      transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.06);
+      border-color: rgba(0, 0, 0, 0.16);
+    }
+
+    body.dark .theme-toggle:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .theme-toggle:active {
+      transform: scale(0.96);
+    }
+
+    /* Version badge */
+
+    .badge-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 17px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+
+      padding: 5px 11px;
+
+      background: rgba(52, 199, 89, 0.09);
+      color: #248a3d;
+
+      border: 1px solid rgba(52, 199, 89, 0.16);
+      border-radius: 999px;
+
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1px;
+    }
+
+    body.dark .badge {
+      background: rgba(52, 199, 89, 0.12);
+      color: #63d471;
+      border-color: rgba(52, 199, 89, 0.2);
+    }
+
+    .badge-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #34c759;
+    }
+
+    /* Heading */
+
+    h1 {
+      margin: 0 0 8px;
+
+      font-size: 25px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+
+      color: var(--heading);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    p.subtitle {
+      max-width: 330px;
+      margin: 0 auto 26px;
+
+      color: var(--subtitle);
+
+      font-size: 13px;
+      line-height: 1.5;
+      letter-spacing: -0.05px;
+    }
+
+    /* Buttons */
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .btn {
+      min-height: 64px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 12px 15px;
+
+      text-decoration: none;
+      border-radius: 12px;
+
+      font-size: 13px;
+      font-weight: 600;
+
+      border: 1px solid transparent;
+
+      transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: scale(0.99);
+    }
+
+    .btn-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      text-align: left;
+    }
+
+    .btn-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.05px;
+    }
+
+    .btn-desc {
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.62;
+    }
+
+    .btn-tag {
+      flex-shrink: 0;
+
+      font-size: 10.5px;
+      padding: 4px 7px;
+
+      border-radius: 6px;
+
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    /* Stable */
+
+    .btn-primary {
+      background: var(--stable-bg);
+      color: #ffffff;
+      border-color: var(--stable-border);
+
+      box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-primary:hover {
+      background: var(--stable-hover);
+      box-shadow:
+        0 5px 14px rgba(0, 0, 0, 0.11);
+    }
+
+    body.dark .btn-primary {
+      color: #1d1d1f;
+    }
+
+    .btn-primary .btn-tag {
+      background: rgba(255, 255, 255, 0.12);
+      color: inherit;
+    }
+
+    body.dark .btn-primary .btn-tag {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    /* Beta */
+
+    .btn-secondary {
+      background: var(--secondary-bg);
+      color: var(--secondary-text);
+      border-color: var(--secondary-border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary-hover-bg);
+      border-color: rgba(0, 0, 0, 0.12);
+    }
+
+    body.dark .btn-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-secondary .btn-tag {
+      background: rgba(255, 159, 10, 0.1);
+      color: #b66a00;
+      border: 1px solid rgba(255, 159, 10, 0.14);
+    }
+
+    body.dark .btn-secondary .btn-tag {
+      color: #ffb340;
+    }
+
+    /* Auto updater */
+
+    .btn-updater {
+      background: var(--updater-bg);
+      color: #ffffff;
+      border-color: var(--updater-border);
+
+      box-shadow:
+        0 3px 8px rgba(47, 111, 104, 0.12);
+    }
+
+    .btn-updater:hover {
+      background: var(--updater-hover);
+      box-shadow:
+        0 5px 14px rgba(47, 111, 104, 0.16);
+    }
+
+    .btn-updater .btn-tag {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+
+    /* Footer */
+
+    .footer-meta {
+      font-size: 11px;
+      color: var(--footer);
+      line-height: 1.6;
+
+      border-top: 1px solid var(--footer-border);
+
+      padding-top: 15px;
+      margin-top: 5px;
+    }
+
+    .footer-meta code {
+      background: var(--code-bg);
+
+      padding: 2px 5px;
+      border-radius: 4px;
+
+      color: var(--code-text);
+      font-size: 10px;
+    }
+
+    #release-date {
+      color: var(--heading) !important;
+      font-weight: 500;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 14px;
+      }
+
+      .card {
+        padding: 34px 20px 25px;
+        border-radius: 19px;
+      }
+
+      h1 {
+        font-size: 23px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark theme"
+      title="Switch theme">🌙</button>
+
+    <div class="badge-wrap">
+      <span class="badge">
+        <span class="badge-dot"></span>
+        <span id="badge-version">v2.0.5</span> · Active
+      </span>
+    </div>
+
+    <h1>💊 HMIS Med Auto</h1>
+
+    <p class="subtitle">
+      Automated medication & clinical workflow helper for HMIS Punjab portals.
+    </p>
+
+    <div class="btn-group">
+
+      <a href="/extension.zip" download="extension.zip" class="btn btn-primary" id="btn-stable">
+        <div class="btn-content">
+          <span class="btn-title">Download Stable Release</span>
+          <span class="btn-desc">Recommended for daily hospital use</span>
+        </div>
+
+        <span class="btn-tag" id="tag-stable">v2.0.5</span>
+      </a>
+
+      <a href="/beta.zip" download="beta.zip" class="btn btn-secondary" id="btn-beta">
+        <div class="btn-content">
+          <span class="btn-title">Download Beta Release</span>
+          <span class="btn-desc">Latest features & fast updates</span>
+        </div>
+
+        <span class="btn-tag" id="tag-beta">v2.0.5-beta</span>
+      </a>
+
+      <a href="/update.bat" download="update.bat" class="btn btn-updater" id="btn-updater">
+        <div class="btn-content">
+          <span class="btn-title">Download Auto-Updater</span>
+          <span class="btn-desc">1-click automated update script</span>
+        </div>
+
+        <span class="btn-tag">BAT</span>
+      </a>
+
+    </div>
+
+    <div class="footer-meta">
+      <div>
+        Release Date:
+        <strong id="release-date" style="color: #cbd5e1;">2026-08-23</strong>
+      </div>
+
+      <div style="margin-top: 4px;">
+        Load via <code>chrome://extensions</code> · Developer Mode
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const THEME_KEY = 'hmis-med-auto-theme';
+
+    const themeToggle = document.getElementById('theme-toggle');
+
+    function applyTheme(theme) {
+      const isDark = theme === 'dark';
+
+      document.body.classList.toggle('dark', isDark);
+
+      themeToggle.textContent = isDark ? '☀️' : '🌙';
+
+      themeToggle.setAttribute(
+        'aria-label',
+        isDark
+          ? 'Switch to light theme'
+          : 'Switch to dark theme'
+      );
+
+      themeToggle.setAttribute(
+        'title',
+        isDark
+          ? 'Switch to light theme'
+          : 'Switch to dark theme'
+      );
+    }
+
+    // Light is the default.
+    const savedTheme =
+      localStorage.getItem(THEME_KEY) || 'light';
+
+    applyTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const newTheme =
+        document.body.classList.contains('dark')
+          ? 'light'
+          : 'dark';
+
+      localStorage.setItem(THEME_KEY, newTheme);
+
+      applyTheme(newTheme);
+    });
+
+
+    // Live update version information.
+    fetch('/version.json?t=' + Date.now())
+      .then(res => res.json())
+      .then(data => {
+        if (!data) return;
+
+        const stable =
+          data.versionName || data.version;
+
+        const beta =
+          data.betaVersionName || data.betaVersion;
+
+        if (stable) {
+          document.getElementById('tag-stable').textContent =
+            'v' + stable;
+
+          document.getElementById('badge-version').textContent =
+            'v' + stable;
+        }
+
+        if (beta) {
+          document.getElementById('tag-beta').textContent =
+            'v' + beta;
+        }
+
+        if (data.releaseDate) {
+          document.getElementById('release-date').textContent =
+            data.releaseDate;
+        }
+      })
+      .catch(() => { });
+  </script>
+
+</body>
+
+</html>

@@ -1,6 +1,6 @@
 # 💊 HMIS Med Auto — Official Releases & Updates
 
-> Public release distribution hub, live update metadata, and 1-click auto-updater packages for the **HMIS Med Auto** extension.
+> Public release distribution hub, live update metadata, and 1-click auto-updater packages for the **HMIS Med Auto** browser extension.
 
 ---
 
@@ -8,8 +8,8 @@
 
 | Channel | Version | Direct Download | Auto-Updater Script |
 | :--- | :--- | :--- | :--- |
-| 🟢 **Stable** | `v2.0.6` | [⬇️ `extension.zip`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/extension.zip) | [⚡ `update.bat`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/update.bat) |
-| 🟡 **Beta** | `v2.0.6-beta` | [⬇️ `beta.zip`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/beta.zip) | [⚡ `update.bat`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/update.bat) |
+| 🟢 **Stable** | `v2.0.5` | [⬇️ `extension.zip`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/extension.zip) | [⚡ `update.bat`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/update.bat) |
+| 🟡 **Beta** | `v2.0.5-beta` | [⬇️ `beta.zip`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/beta.zip) | [⚡ `update.bat`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/update.bat) |
 
 - 📄 **Live Version Metadata**: [`version.json`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/version.json)
 - 🌐 **Web Update Portal**: [https://hmis-ahm-gmc.vercel.app](https://hmis-ahm-gmc.vercel.app)
