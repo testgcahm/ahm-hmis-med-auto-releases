@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>HMIS Med Auto — Extension Download</title>
 
   <link rel="icon"
@@ -563,8 +566,9 @@
     });
 
 
-    // Live update version information.
-    fetch('version.json?t=' + Date.now())
+    // Live update version information & dynamic cache-busting.
+    const timestamp = Date.now();
+    fetch('version.json?t=' + timestamp, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (!data) return;
@@ -576,21 +580,34 @@
           data.betaVersionName || data.betaVersion;
 
         if (stable) {
-          document.getElementById('tag-stable').textContent =
-            'v' + stable;
-
-          document.getElementById('badge-version').textContent =
-            'v' + stable;
+          const tagStable = document.getElementById('tag-stable');
+          const badgeVer = document.getElementById('badge-version');
+          if (tagStable) tagStable.textContent = 'v' + stable;
+          if (badgeVer) badgeVer.textContent = 'v' + stable;
         }
 
         if (beta) {
-          document.getElementById('tag-beta').textContent =
-            'v' + beta;
+          const tagBeta = document.getElementById('tag-beta');
+          if (tagBeta) tagBeta.textContent = 'v' + beta;
         }
 
         if (data.releaseDate) {
-          document.getElementById('release-date').textContent =
-            data.releaseDate;
+          const relDate = document.getElementById('release-date');
+          if (relDate) relDate.textContent = data.releaseDate;
+        }
+
+        const btnStable = document.getElementById('btn-stable');
+        const btnBeta = document.getElementById('btn-beta');
+        const btnUpdater = document.getElementById('btn-updater');
+
+        if (btnStable) {
+          btnStable.href = (data.links && data.links.stableZip) ? (data.links.stableZip + '?t=' + timestamp) : ('extension.zip?t=' + timestamp);
+        }
+        if (btnBeta) {
+          btnBeta.href = (data.links && data.links.betaZip) ? (data.links.betaZip + '?t=' + timestamp) : ('beta.zip?t=' + timestamp);
+        }
+        if (btnUpdater) {
+          btnUpdater.href = (data.links && data.links.updateBat) ? (data.links.updateBat + '?t=' + timestamp) : ('update.bat?t=' + timestamp);
         }
       })
       .catch(() => { });
