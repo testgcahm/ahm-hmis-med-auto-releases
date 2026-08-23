@@ -1,8 +1,8 @@
 {
-  "version": "2.0.6",
-  "versionName": "2.0.6",
-  "betaVersion": "2.0.6.1",
-  "betaVersionName": "2.0.6-beta",
+  "version": "2.0.5",
+  "versionName": "2.0.5",
+  "betaVersion": "2.0.5.1",
+  "betaVersionName": "2.0.5-beta",
   "releaseDate": "2026-08-23",
   "minExtensionVersion": "1.0.0",
   "changelog": [
