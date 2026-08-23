@@ -21,6 +21,7 @@ Write-Host "[1/4] Checking latest release from server..." -ForegroundColor Yello
 $remoteMeta = $null
 $timestamp = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
 $primaryVersionUrl = "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/version.json?t=$timestamp"
+$secondaryVersionUrl = "https://testgcahm.github.io/ahm-hmis-med-auto-releases/version.json?t=$timestamp"
 $fallbackVersionUrl = "https://hmis-ahm-gmc.vercel.app/version.json?t=$timestamp"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -72,6 +73,9 @@ function Compare-SemVer([string]$v1, [string]$v2) {
 }
 
 $remoteMeta = Fetch-ReleaseJson $primaryVersionUrl
+if (-not $remoteMeta) {
+    $remoteMeta = Fetch-ReleaseJson $secondaryVersionUrl
+}
 if (-not $remoteMeta) {
     $remoteMeta = Fetch-ReleaseJson $fallbackVersionUrl
 }
@@ -385,13 +389,13 @@ try {
     Write-Host "[3/4] Preparing update packages..." -ForegroundColor Yellow
 
     if ($needsStable) {
-        $stableUrl = if ($remoteMeta -and $remoteMeta.links -and $remoteMeta.links.stableZip) { $remoteMeta.links.stableZip } else { "https://hmis-ahm-gmc.vercel.app/extension.zip" }
+        $stableUrl = if ($remoteMeta -and $remoteMeta.links -and $remoteMeta.links.stableZip) { $remoteMeta.links.stableZip } else { "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/extension.zip" }
         $stableExtract = Join-Path $tempRoot "stable_extracted"
         $packages["Stable"] = Get-UpdatePackage -zipName "extension.zip" -remoteUrl $stableUrl -destDir $stableExtract -targetChannel "Stable" -expectedVer $stableVer
     }
 
     if ($needsBeta) {
-        $betaUrl = if ($remoteMeta -and $remoteMeta.links -and $remoteMeta.links.betaZip) { $remoteMeta.links.betaZip } else { "https://hmis-ahm-gmc.vercel.app/beta.zip" }
+        $betaUrl = if ($remoteMeta -and $remoteMeta.links -and $remoteMeta.links.betaZip) { $remoteMeta.links.betaZip } else { "https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/beta.zip" }
         $betaExtract = Join-Path $tempRoot "beta_extracted"
         $packages["Beta"] = Get-UpdatePackage -zipName "beta.zip" -remoteUrl $betaUrl -destDir $betaExtract -targetChannel "Beta" -expectedVer $betaVer
     }
