@@ -36,3 +36,9 @@
 3. Open your browser to `chrome://extensions`.
 4. Enable **Developer mode** toggle in the top right corner.
 5. Click **Load unpacked** and select your extracted folder.
+
+---
+
+## 📜 License
+
+Proprietary Release License. Copyright © 2026 HMIS Med Auto. All rights reserved. See [`LICENSE`](LICENSE) for details.
