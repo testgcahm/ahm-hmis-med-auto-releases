@@ -601,13 +601,13 @@
         const btnUpdater = document.getElementById('btn-updater');
 
         if (btnStable) {
-          btnStable.href = (data.links && data.links.stableZip) ? (data.links.stableZip + '?t=' + timestamp) : ('extension.zip?t=' + timestamp);
+          btnStable.href = 'extension.zip?t=' + timestamp;
         }
         if (btnBeta) {
-          btnBeta.href = (data.links && data.links.betaZip) ? (data.links.betaZip + '?t=' + timestamp) : ('beta.zip?t=' + timestamp);
+          btnBeta.href = 'beta.zip?t=' + timestamp;
         }
         if (btnUpdater) {
-          btnUpdater.href = (data.links && data.links.updateBat) ? (data.links.updateBat + '?t=' + timestamp) : ('update.bat?t=' + timestamp);
+          btnUpdater.href = 'update.bat?t=' + timestamp;
         }
       })
       .catch(() => { });
