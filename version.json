@@ -3,7 +3,7 @@
   "versionName": "2.0.6",
   "betaVersion": "2.0.6.1",
   "betaVersionName": "2.0.6-beta",
-  "releaseDate": "2026-08-23",
+  "releaseDate": "2026-08-26",
   "minExtensionVersion": "1.0.0",
   "changelog": [
     "⚡ Beta Fast API streamlined to 1 single combined Livewire request",
