@@ -1,11 +1,13 @@
 {
-  "version": "2.0.6",
-  "versionName": "2.0.6",
-  "betaVersion": "2.0.6.1",
-  "betaVersionName": "2.0.6-beta",
-  "releaseDate": "2026-08-26",
+  "version": "2.0.7",
+  "versionName": "2.0.7",
+  "betaVersion": "2.0.7.1",
+  "betaVersionName": "2.0.7-beta",
+  "releaseDate": "2026-09-06",
   "minExtensionVersion": "1.0.0",
   "changelog": [
+    "⚠️ Automatically dismissed and ignored 'This CPT has already been ordered' warning popups/toasts in Investigation Mode without causing failure",
+    "🔬 Prioritized success prompts over concurrent error prompts in Investigation Mode verifier to prevent false rejections and repeat attempts",
     "⚡ Beta Fast API streamlined to 1 single combined Livewire request",
     "🛡️ Instant #livewire-error modal auto-dismissal via dedicated DOM MutationObserver",
     "🔄 Livewire Sync strictly triggered as on-save error recovery without running prematurely",
