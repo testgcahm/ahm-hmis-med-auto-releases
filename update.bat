@@ -378,23 +378,26 @@ try {
             $foundLocal = $false
             foreach ($lp in $candidatePaths) {
                 if ($lp -and (Test-Path $lp) -and ((Get-Item $lp).Length -gt 1000)) {
-                    $localDest = Join-Path $tempRoot ("local_check_" + (Get-Random))
-                    try {
-                        Expand-Archive -LiteralPath $lp -DestinationPath $localDest -Force
-                        $localMf = Get-ChildItem -Path $localDest -Filter "manifest.json" -Recurse | Select-Object -First 1
-                        if ($localMf) {
-                            $localJson = Get-Content $localMf.FullName -Raw | ConvertFrom-Json
-                            $localVer = if ($localJson.version_name) { $localJson.version_name } else { $localJson.version }
-                            if ((Compare-SemVer $localVer $pkgVer) -gt 0) {
-                                Write-Host "  [INFO] Remote package was still propagating (v$pkgVer). Using local build (v$localVer)." -ForegroundColor Yellow
-                                $foundLocal = $true
-                                return @{
-                                    Dir = $localMf.DirectoryName
-                                    Version = $localVer
+                    $bytes = [System.IO.File]::ReadAllBytes($lp)
+                    if ($bytes.Length -gt 4 -and $bytes[0] -eq 0x50 -and $bytes[1] -eq 0x4B) {
+                        $localDest = Join-Path $tempRoot ("local_check_" + (Get-Random))
+                        try {
+                            Expand-Archive -LiteralPath $lp -DestinationPath $localDest -Force
+                            $localMf = Get-ChildItem -Path $localDest -Filter "manifest.json" -Recurse | Select-Object -First 1
+                            if ($localMf) {
+                                $localJson = Get-Content $localMf.FullName -Raw | ConvertFrom-Json
+                                $localVer = if ($localJson.version_name) { $localJson.version_name } else { $localJson.version }
+                                if ((Compare-SemVer $localVer $pkgVer) -gt 0) {
+                                    Write-Host "  [INFO] Remote package was still propagating (v$pkgVer). Using local build (v$localVer)." -ForegroundColor Yellow
+                                    $foundLocal = $true
+                                    return @{
+                                        Dir = $localMf.DirectoryName
+                                        Version = $localVer
+                                    }
                                 }
                             }
-                        }
-                    } catch {}
+                        } catch {}
+                    }
                 }
             }
 
