@@ -3,7 +3,7 @@
   "versionName": "2.0.7",
   "betaVersion": "2.0.7.1",
   "betaVersionName": "2.0.7-beta",
-  "releaseDate": "2026-09-08",
+  "releaseDate": "2026-09-13",
   "minExtensionVersion": "1.0.0",
   "changelog": [
     "⚠️ Automatically dismissed and ignored 'This CPT has already been ordered' warning popups/toasts in Investigation Mode without causing failure",
