@@ -55,16 +55,23 @@
   });
 
   // ── GitHub Configuration (Isolated & Configurable) ──
-  const GITHUB_CONFIG = {
-    owner: 'testgcahm',
-    repo: 'hmis-ahm-gmc',
-    branch: 'main',
-    // Map of selectable files to their repo relative paths
-    fileMap: {
-      'data/templates.json': 'vercel-public/data/templates.json',
-      'version.json': 'vercel-public/version.json'
-    }
-  };
+  function getGitHubConfig() {
+    const owner = (localStorage.getItem('admin_gh_owner') || 'testgcahm').trim();
+    const repo = (localStorage.getItem('admin_gh_repo') || 'ahm-hmis-med-auto-releases').trim();
+    const branch = (localStorage.getItem('admin_gh_branch') || 'main').trim();
+
+    const isMainDevRepo = repo.toLowerCase() === 'hmis-ahm-gmc';
+
+    return {
+      owner,
+      repo,
+      branch,
+      fileMap: {
+        'data/templates.json': isMainDevRepo ? 'vercel-public/data/templates.json' : 'data/templates.json',
+        'version.json': isMainDevRepo ? 'vercel-public/version.json' : 'version.json'
+      }
+    };
+  }
 
   // State
   let currentFileKey = 'data/templates.json';
@@ -160,7 +167,16 @@
   }
 
   btnTokenModal?.addEventListener('click', () => {
-    inputPatToken.value = getGitHubToken();
+    const cfg = getGitHubConfig();
+    const inputOwner = document.getElementById('input-gh-owner');
+    const inputRepo = document.getElementById('input-gh-repo');
+    const inputBranch = document.getElementById('input-gh-branch');
+
+    if (inputOwner) inputOwner.value = cfg.owner;
+    if (inputRepo) inputRepo.value = cfg.repo;
+    if (inputBranch) inputBranch.value = cfg.branch;
+    if (inputPatToken) inputPatToken.value = getGitHubToken();
+
     tokenModal.style.display = 'flex';
     inputPatToken.focus();
   });
@@ -171,23 +187,35 @@
 
   btnSaveToken?.addEventListener('click', () => {
     const tok = inputPatToken.value.trim();
+    const owner = (document.getElementById('input-gh-owner')?.value || 'testgcahm').trim();
+    const repo = (document.getElementById('input-gh-repo')?.value || 'ahm-hmis-med-auto-releases').trim();
+    const branch = (document.getElementById('input-gh-branch')?.value || 'main').trim();
+
+    localStorage.setItem('admin_gh_owner', owner);
+    localStorage.setItem('admin_gh_repo', repo);
+    localStorage.setItem('admin_gh_branch', branch);
+
     if (tok) {
       localStorage.setItem('github_admin_pat', tok);
-      showAlert('GitHub Personal Access Token saved securely in browser storage.', 'success');
+      showAlert(`GitHub settings saved! Target: ${owner}/${repo} (${branch})`, 'success');
     } else {
       localStorage.removeItem('github_admin_pat');
-      showAlert('Token cleared.', 'info');
+      showAlert('GitHub settings saved! (No PAT set)', 'info');
     }
     updateTokenStatusBadge();
     tokenModal.style.display = 'none';
+    loadFileContent(currentFileKey);
   });
 
   btnClearToken?.addEventListener('click', () => {
     localStorage.removeItem('github_admin_pat');
-    inputPatToken.value = '';
+    localStorage.removeItem('admin_gh_owner');
+    localStorage.removeItem('admin_gh_repo');
+    localStorage.removeItem('admin_gh_branch');
+    if (inputPatToken) inputPatToken.value = '';
     updateTokenStatusBadge();
     tokenModal.style.display = 'none';
-    showAlert('GitHub Token removed.', 'info');
+    showAlert('GitHub Token & Settings reset to defaults.', 'info');
   });
 
   // View Switching
@@ -215,6 +243,7 @@
   // ── GitHub API Fetch & Save ──
   async function loadFileContent(fileKey) {
     currentFileKey = fileKey;
+    const GITHUB_CONFIG = getGitHubConfig();
     const targetPath = GITHUB_CONFIG.fileMap[fileKey] || fileKey;
     showAlert(`Loading ${targetPath} from GitHub (${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo})...`, 'info');
 
@@ -290,6 +319,7 @@
       return;
     }
 
+    const GITHUB_CONFIG = getGitHubConfig();
     const targetPath = GITHUB_CONFIG.fileMap[currentFileKey] || currentFileKey;
     const confirmSave = confirm(`Commit and push changes for "${targetPath}" to GitHub branch "${GITHUB_CONFIG.branch}"?`);
     if (!confirmSave) return;
@@ -763,12 +793,76 @@
     }
   });
 
+  const DUMMY_BULK_TEMPLATE = {
+    "name": "Sample OT Template",
+    "items": [
+      { "name": "INJ CEFTRIAXONE 1GM", "qty": 1 },
+      { "name": "INJ PARACETAMOL 100ML", "qty": 1 },
+      { "name": "IV CANNULA 20G", "qty": 1 }
+    ]
+  };
+
+  const DUMMY_INDIVIDUAL_TEMPLATE = {
+    "templates": ["general_anesthesia"],
+    "customItems": [
+      { "name": "INJ CEFTRIAXONE 1GM", "qty": 1 },
+      { "name": "INJ METRONIDAZOLE 100ML", "qty": 1 }
+    ]
+  };
+
   // Toolbar button listeners
   document.getElementById('btn-format')?.addEventListener('click', formatJson);
   document.getElementById('btn-minify')?.addEventListener('click', minifyJson);
   document.getElementById('btn-validate')?.addEventListener('click', () => {
     if (validateJsonSyntax()) {
       showAlert('✓ JSON syntax is perfectly valid.', 'success');
+    }
+  });
+  document.getElementById('btn-copy-dummy-template')?.addEventListener('click', () => {
+    const text = JSON.stringify(DUMMY_BULK_TEMPLATE, null, 2);
+    navigator.clipboard.writeText(text).then(() => {
+      showAlert('📋 Sample bulk template JSON copied to clipboard!', 'success');
+    }).catch(err => {
+      showAlert('Failed to copy: ' + err, 'error');
+    });
+  });
+  document.getElementById('btn-copy-dummy-indiv-template')?.addEventListener('click', () => {
+    const text = JSON.stringify(DUMMY_INDIVIDUAL_TEMPLATE, null, 2);
+    navigator.clipboard.writeText(text).then(() => {
+      showAlert('📋 Sample individual template JSON copied to clipboard!', 'success');
+    }).catch(err => {
+      showAlert('Failed to copy: ' + err, 'error');
+    });
+  });
+  document.getElementById('btn-add-dummy-template')?.addEventListener('click', () => {
+    try {
+      let parsed = JSON.parse(jsonEditor.value);
+      const key = prompt('Enter key for new template:', 'sample_template_' + Date.now().toString().slice(-4)) || 'sample_template';
+      if (parsed.defaultTemplates && typeof parsed.defaultTemplates === 'object') {
+        parsed.defaultTemplates[key] = JSON.parse(JSON.stringify(DUMMY_BULK_TEMPLATE));
+      } else {
+        parsed[key] = JSON.parse(JSON.stringify(DUMMY_BULK_TEMPLATE));
+      }
+      jsonEditor.value = JSON.stringify(parsed, null, 2);
+      validateJsonSyntax();
+      showAlert(`➕ Added sample bulk template "${key}" into JSON editor!`, 'success');
+    } catch (err) {
+      showAlert('Cannot insert template: Current JSON editor content contains syntax errors.', 'error');
+    }
+  });
+  document.getElementById('btn-add-dummy-indiv-template')?.addEventListener('click', () => {
+    try {
+      let parsed = JSON.parse(jsonEditor.value);
+      const key = prompt('Enter patient index or key for individual config:', '0') || '0';
+      if (!parsed.otPatientTemplates || typeof parsed.otPatientTemplates !== 'object') {
+        parsed.otPatientTemplates = {};
+      }
+      parsed.otPatientTemplates[key] = JSON.parse(JSON.stringify(DUMMY_INDIVIDUAL_TEMPLATE));
+      jsonEditor.value = JSON.stringify(parsed, null, 2);
+      validateJsonSyntax();
+      showAlert(`➕ Added sample individual template override for patient "${key}" into JSON editor!`, 'success');
+    } catch (err) {
+      showAlert('Cannot insert individual template: Current JSON editor content contains syntax errors.', 'error');
     }
   });
   document.getElementById('btn-reset')?.addEventListener('click', () => {

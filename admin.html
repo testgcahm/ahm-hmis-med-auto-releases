@@ -712,10 +712,14 @@
     <!-- ── View 2: Raw Code JSON Editor ── -->
     <div id="code-editor-view">
       <div class="editor-toolbar">
-        <div class="toolbar-left">
+        <div class="toolbar-left" style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
           <button type="button" class="btn" id="btn-format" title="Format and pretty-print JSON (Ctrl+Shift+F)">⚡ Format</button>
           <button type="button" class="btn" id="btn-minify" title="Minify JSON">📦 Minify</button>
           <button type="button" class="btn" id="btn-validate" title="Validate JSON syntax">✓ Validate</button>
+          <button type="button" class="btn" id="btn-copy-dummy-template" title="Copy sample bulk template JSON to clipboard">📋 Copy Dummy Bulk Template</button>
+          <button type="button" class="btn" id="btn-copy-dummy-indiv-template" title="Copy sample individual template JSON to clipboard">📋 Copy Dummy Individual Template</button>
+          <button type="button" class="btn" id="btn-add-dummy-template" title="Insert a sample bulk template into the JSON editor">➕ Add Sample Bulk Template</button>
+          <button type="button" class="btn" id="btn-add-dummy-indiv-template" title="Insert a sample individual template into the JSON editor">➕ Add Sample Individual Template</button>
           <button type="button" class="btn" id="btn-reset" title="Reload from repository">↺ Reload</button>
         </div>
         <div class="toolbar-right">
@@ -747,26 +751,44 @@
 
   </div>
 
-  <!-- GitHub Token Settings Modal -->
+  <!-- GitHub Token & Repository Settings Modal -->
   <div id="token-modal" class="modal-overlay">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width: 440px;">
       <div class="modal-header">
-        <h2 class="modal-title">🔑 GitHub Authentication</h2>
+        <h2 class="modal-title">🔑 GitHub Settings & Authentication</h2>
         <button type="button" class="modal-close" id="btn-close-token-modal">✕</button>
       </div>
-      <p style="font-size: 13px; color: var(--subtitle); line-height: 1.4; margin-bottom: 14px;">
-        To push changes without manual commits, enter a GitHub Personal Access Token (PAT) with <b>Contents: Read and write</b> permissions for this repository.
+      <p style="font-size: 12.5px; color: var(--subtitle); line-height: 1.4; margin-bottom: 12px;">
+        To push changes live to GitHub, enter a Personal Access Token (PAT) with <b>Contents: Read and write</b> permissions for your repository.
       </p>
-      <div style="font-size: 11.5px; color: var(--subtitle); margin-bottom: 4px;">
-        Target: <b id="modal-repo-target">testgcahm/hmis-ahm-gmc (main)</b>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+        <div>
+          <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 3px; color: var(--text-primary);">Owner / Org</label>
+          <input type="text" id="input-gh-owner" class="modal-input" placeholder="testgcahm" value="testgcahm" />
+        </div>
+        <div>
+          <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 3px; color: var(--text-primary);">Repository</label>
+          <input type="text" id="input-gh-repo" class="modal-input" placeholder="ahm-hmis-med-auto-releases" value="ahm-hmis-med-auto-releases" />
+        </div>
       </div>
-      <input type="password" id="input-pat-token" class="modal-input" placeholder="github_pat_... or ghp_..." autocomplete="off" />
-      <div style="font-size: 11.5px; color: var(--subtitle); margin-bottom: 18px; line-height: 1.4;">
-        🔒 <b>Client-side only:</b> Stored only in your personal browser localStorage. Never sent to any third party.
+
+      <div style="margin-bottom: 10px;">
+        <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 3px; color: var(--text-primary);">Branch</label>
+        <input type="text" id="input-gh-branch" class="modal-input" placeholder="main" value="main" />
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 3px; color: var(--text-primary);">Personal Access Token (PAT)</label>
+        <input type="password" id="input-pat-token" class="modal-input" placeholder="github_pat_... or ghp_..." autocomplete="off" />
+      </div>
+
+      <div style="font-size: 11px; color: var(--subtitle); margin-bottom: 16px; line-height: 1.4;">
+        🔒 <b>Client-side only:</b> Stored solely in your browser localStorage.
       </div>
       <div class="modal-actions">
-        <button type="button" class="btn" id="btn-clear-token" style="color: var(--danger);">Clear Token</button>
-        <button type="button" class="btn btn-primary" id="btn-save-token">Save Token</button>
+        <button type="button" class="btn" id="btn-clear-token" style="color: var(--danger);">Clear All</button>
+        <button type="button" class="btn btn-primary" id="btn-save-token">Save Settings</button>
       </div>
     </div>
   </div>
