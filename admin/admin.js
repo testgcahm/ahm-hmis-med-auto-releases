@@ -834,36 +834,205 @@
       showAlert('Failed to copy: ' + err, 'error');
     });
   });
-  document.getElementById('btn-add-dummy-template')?.addEventListener('click', () => {
+  // ── Paste AI JSON Modal Handler ──
+  const pasteJsonModal = document.getElementById('paste-json-modal');
+  const pasteJsonModalTitle = document.getElementById('paste-json-modal-title');
+  const pasteJsonDeptGroup = document.getElementById('paste-json-dept-group');
+  const pasteJsonDeptSelect = document.getElementById('paste-json-dept-select');
+  const pasteJsonDeptCustom = document.getElementById('paste-json-dept-custom');
+  const pasteJsonKeyLabel = document.getElementById('paste-json-key-label');
+  const pasteJsonKeyInput = document.getElementById('paste-json-key-input');
+  const pasteJsonTextarea = document.getElementById('paste-json-textarea');
+
+  let currentPasteActionType = ''; // 'dept-bulk', 'dept-indiv', 'bulk', 'indiv'
+
+  function openPasteJsonModal(type) {
+    let parsed;
     try {
-      let parsed = JSON.parse(jsonEditor.value);
-      const key = prompt('Enter key for new template:', 'sample_template_' + Date.now().toString().slice(-4)) || 'sample_template';
-      if (parsed.defaultTemplates && typeof parsed.defaultTemplates === 'object') {
-        parsed.defaultTemplates[key] = JSON.parse(JSON.stringify(DUMMY_BULK_TEMPLATE));
-      } else {
-        parsed[key] = JSON.parse(JSON.stringify(DUMMY_BULK_TEMPLATE));
-      }
-      jsonEditor.value = JSON.stringify(parsed, null, 2);
-      validateJsonSyntax();
-      showAlert(`➕ Added sample bulk template "${key}" into JSON editor!`, 'success');
+      parsed = JSON.parse(jsonEditor.value);
     } catch (err) {
       showAlert('Cannot insert template: Current JSON editor content contains syntax errors.', 'error');
+      return;
+    }
+
+    currentPasteActionType = type;
+    pasteJsonTextarea.value = '';
+    pasteJsonKeyInput.value = '';
+    pasteJsonDeptCustom.value = '';
+    pasteJsonDeptCustom.style.display = 'none';
+
+    // Populate department options if needed
+    if (type === 'dept-bulk' || type === 'dept-indiv') {
+      pasteJsonDeptGroup.style.display = 'block';
+      let depts = (parsed && parsed.departments) ? Object.keys(parsed.departments) : [];
+      let optionsHtml = depts.map(d => `<option value="${d}">${parsed.departments[d].name || d}</option>`).join('');
+      optionsHtml += '<option value="__NEW__">➕ Create New Department...</option>';
+      pasteJsonDeptSelect.innerHTML = optionsHtml;
+      if (depts.length > 0 && selectedDeptKey && selectedDeptKey !== '__DEFAULTS__' && depts.includes(selectedDeptKey)) {
+        pasteJsonDeptSelect.value = selectedDeptKey;
+      }
+    } else {
+      pasteJsonDeptGroup.style.display = 'none';
+    }
+
+    if (type === 'dept-bulk') {
+      pasteJsonModalTitle.textContent = 'Add Bulk Template in Department';
+      pasteJsonKeyLabel.textContent = 'Template Key (e.g. general_anesthesia)';
+      pasteJsonKeyInput.placeholder = 'e.g. ent_local_anesthesia';
+      pasteJsonTextarea.placeholder = JSON.stringify(DUMMY_BULK_TEMPLATE, null, 2);
+    } else if (type === 'dept-indiv') {
+      pasteJsonModalTitle.textContent = 'Add Individual Template in Department';
+      pasteJsonKeyLabel.textContent = 'Patient Index or Override Key';
+      pasteJsonKeyInput.placeholder = 'e.g. 0 or patient_0';
+      pasteJsonTextarea.placeholder = JSON.stringify(DUMMY_INDIVIDUAL_TEMPLATE, null, 2);
+    } else if (type === 'bulk') {
+      pasteJsonModalTitle.textContent = 'Add Bulk Template';
+      pasteJsonKeyLabel.textContent = 'Template Key (e.g. general_anesthesia)';
+      pasteJsonKeyInput.placeholder = 'e.g. pediatric_anesthesia';
+      pasteJsonTextarea.placeholder = JSON.stringify(DUMMY_BULK_TEMPLATE, null, 2);
+    } else if (type === 'indiv') {
+      pasteJsonModalTitle.textContent = 'Add Individual Template';
+      pasteJsonKeyLabel.textContent = 'Patient Index or Override Key';
+      pasteJsonKeyInput.placeholder = 'e.g. 0 or 1';
+      pasteJsonTextarea.placeholder = JSON.stringify(DUMMY_INDIVIDUAL_TEMPLATE, null, 2);
+    }
+
+    pasteJsonModal.style.display = 'flex';
+    if (type === 'dept-bulk' || type === 'dept-indiv') {
+      pasteJsonDeptSelect.focus();
+    } else {
+      pasteJsonKeyInput.focus();
+    }
+  }
+
+  pasteJsonDeptSelect?.addEventListener('change', (e) => {
+    if (e.target.value === '__NEW__') {
+      pasteJsonDeptCustom.style.display = 'block';
+      pasteJsonDeptCustom.focus();
+    } else {
+      pasteJsonDeptCustom.style.display = 'none';
     }
   });
-  document.getElementById('btn-add-dummy-indiv-template')?.addEventListener('click', () => {
+
+  document.getElementById('btn-close-paste-json-modal')?.addEventListener('click', () => {
+    pasteJsonModal.style.display = 'none';
+  });
+  document.getElementById('btn-cancel-paste-json-modal')?.addEventListener('click', () => {
+    pasteJsonModal.style.display = 'none';
+  });
+
+  document.getElementById('btn-paste-clipboard')?.addEventListener('click', async () => {
     try {
-      let parsed = JSON.parse(jsonEditor.value);
-      const key = prompt('Enter patient index or key for individual config:', '0') || '0';
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        pasteJsonTextarea.value = text;
+        showAlert('📋 Pasted content from clipboard!', 'info');
+      } else {
+        showAlert('Clipboard is empty.', 'warning');
+      }
+    } catch (err) {
+      showAlert('Unable to read clipboard automatically. Please press Ctrl+V inside the text area.', 'info');
+    }
+  });
+
+  document.getElementById('btn-confirm-paste-json-modal')?.addEventListener('click', () => {
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonEditor.value);
+    } catch (err) {
+      showAlert('Current JSON editor content contains syntax errors.', 'error');
+      return;
+    }
+
+    const key = pasteJsonKeyInput.value.trim();
+    if (!key) {
+      showAlert('Please enter a valid template key / index.', 'warning');
+      return;
+    }
+
+    const rawJsonText = pasteJsonTextarea.value.trim();
+    if (!rawJsonText) {
+      showAlert('Please paste JSON content into the text area.', 'warning');
+      return;
+    }
+
+    let insertedObj;
+    try {
+      insertedObj = JSON.parse(rawJsonText);
+    } catch (err) {
+      showAlert(`Pasted JSON contains syntax errors: ${err.message}`, 'error');
+      return;
+    }
+
+    // Determine target department key if department action
+    let deptKey = '';
+    if (currentPasteActionType === 'dept-bulk' || currentPasteActionType === 'dept-indiv') {
+      const selectedVal = pasteJsonDeptSelect.value;
+      if (selectedVal === '__NEW__') {
+        deptKey = pasteJsonDeptCustom.value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+        if (!deptKey) {
+          showAlert('Please enter a valid new department key.', 'warning');
+          return;
+        }
+      } else {
+        deptKey = selectedVal;
+      }
+
+      if (!parsed.departments) parsed.departments = {};
+      if (!parsed.departments[deptKey]) {
+        parsed.departments[deptKey] = {
+          name: deptKey,
+          aliases: [deptKey],
+          templates: {}
+        };
+      }
+    }
+
+    // Perform injection according to action type
+    if (currentPasteActionType === 'dept-bulk') {
+      if (!parsed.departments[deptKey].templates) {
+        parsed.departments[deptKey].templates = {};
+      }
+      parsed.departments[deptKey].templates[key] = insertedObj;
+      showAlert(`➕ Added bulk template "${key}" to department "${deptKey}"!`, 'success');
+    } else if (currentPasteActionType === 'dept-indiv') {
+      if (!parsed.departments[deptKey].individualTemplates) {
+        parsed.departments[deptKey].individualTemplates = {};
+      }
+      parsed.departments[deptKey].individualTemplates[key] = insertedObj;
+      showAlert(`➕ Added individual template "${key}" to department "${deptKey}"!`, 'success');
+    } else if (currentPasteActionType === 'bulk') {
+      if (!parsed.defaultTemplates || typeof parsed.defaultTemplates !== 'object') {
+        parsed.defaultTemplates = {};
+      }
+      parsed.defaultTemplates[key] = insertedObj;
+      showAlert(`➕ Added bulk template "${key}" to default templates!`, 'success');
+    } else if (currentPasteActionType === 'indiv') {
       if (!parsed.otPatientTemplates || typeof parsed.otPatientTemplates !== 'object') {
         parsed.otPatientTemplates = {};
       }
-      parsed.otPatientTemplates[key] = JSON.parse(JSON.stringify(DUMMY_INDIVIDUAL_TEMPLATE));
-      jsonEditor.value = JSON.stringify(parsed, null, 2);
-      validateJsonSyntax();
-      showAlert(`➕ Added sample individual template override for patient "${key}" into JSON editor!`, 'success');
-    } catch (err) {
-      showAlert('Cannot insert individual template: Current JSON editor content contains syntax errors.', 'error');
+      parsed.otPatientTemplates[key] = insertedObj;
+      showAlert(`➕ Added individual template override for "${key}"!`, 'success');
     }
+
+    currentJsonData = parsed;
+    jsonEditor.value = JSON.stringify(parsed, null, 2);
+    validateJsonSyntax();
+    renderVisualEditor();
+    pasteJsonModal.style.display = 'none';
+  });
+
+  document.getElementById('btn-add-dept-bulk-template')?.addEventListener('click', () => {
+    openPasteJsonModal('dept-bulk');
+  });
+  document.getElementById('btn-add-dept-indiv-template')?.addEventListener('click', () => {
+    openPasteJsonModal('dept-indiv');
+  });
+  document.getElementById('btn-add-bulk-template')?.addEventListener('click', () => {
+    openPasteJsonModal('bulk');
+  });
+  document.getElementById('btn-add-indiv-template')?.addEventListener('click', () => {
+    openPasteJsonModal('indiv');
   });
   document.getElementById('btn-reset')?.addEventListener('click', () => {
     if (confirm('Discard any unsaved edits and reload from repository?')) {
