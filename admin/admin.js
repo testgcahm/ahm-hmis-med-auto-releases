@@ -844,7 +844,7 @@
   const pasteJsonKeyInput = document.getElementById('paste-json-key-input');
   const pasteJsonTextarea = document.getElementById('paste-json-textarea');
 
-  let currentPasteActionType = ''; // 'dept-bulk', 'dept-indiv', 'bulk', 'indiv'
+  let currentPasteActionType = ''; // 'dept-bulk', 'bulk', 'indiv'
 
   function openPasteJsonModal(type) {
     let parsed;
@@ -862,7 +862,7 @@
     pasteJsonDeptCustom.style.display = 'none';
 
     // Populate department options if needed
-    if (type === 'dept-bulk' || type === 'dept-indiv') {
+    if (type === 'dept-bulk') {
       pasteJsonDeptGroup.style.display = 'block';
       let depts = (parsed && parsed.departments) ? Object.keys(parsed.departments) : [];
       let optionsHtml = depts.map(d => `<option value="${d}">${parsed.departments[d].name || d}</option>`).join('');
@@ -870,6 +870,18 @@
       pasteJsonDeptSelect.innerHTML = optionsHtml;
       if (depts.length > 0 && selectedDeptKey && selectedDeptKey !== '__DEFAULTS__' && depts.includes(selectedDeptKey)) {
         pasteJsonDeptSelect.value = selectedDeptKey;
+      }
+    } else if (type === 'indiv') {
+      pasteJsonDeptGroup.style.display = 'block';
+      let depts = (parsed && parsed.departments) ? Object.keys(parsed.departments) : [];
+      let optionsHtml = `<option value="__DEFAULT__">📋 Add in default templates</option>`;
+      optionsHtml += depts.map(d => `<option value="${d}">🏥 Add in ${parsed.departments[d].name || d}</option>`).join('');
+      optionsHtml += '<option value="__NEW__">➕ Create New Department...</option>';
+      pasteJsonDeptSelect.innerHTML = optionsHtml;
+      if (depts.length > 0 && selectedDeptKey && selectedDeptKey !== '__DEFAULTS__' && depts.includes(selectedDeptKey)) {
+        pasteJsonDeptSelect.value = selectedDeptKey;
+      } else {
+        pasteJsonDeptSelect.value = '__DEFAULT__';
       }
     } else {
       pasteJsonDeptGroup.style.display = 'none';
@@ -880,11 +892,6 @@
       pasteJsonKeyLabel.textContent = 'Template Key (e.g. general_anesthesia)';
       pasteJsonKeyInput.placeholder = 'e.g. ent_local_anesthesia';
       pasteJsonTextarea.placeholder = JSON.stringify(DUMMY_BULK_TEMPLATE, null, 2);
-    } else if (type === 'dept-indiv') {
-      pasteJsonModalTitle.textContent = 'Add Individual Template in Department';
-      pasteJsonKeyLabel.textContent = 'Patient Index or Override Key';
-      pasteJsonKeyInput.placeholder = 'e.g. 0 or patient_0';
-      pasteJsonTextarea.placeholder = JSON.stringify(DUMMY_INDIVIDUAL_TEMPLATE, null, 2);
     } else if (type === 'bulk') {
       pasteJsonModalTitle.textContent = 'Add Bulk Template';
       pasteJsonKeyLabel.textContent = 'Template Key (e.g. general_anesthesia)';
@@ -892,13 +899,13 @@
       pasteJsonTextarea.placeholder = JSON.stringify(DUMMY_BULK_TEMPLATE, null, 2);
     } else if (type === 'indiv') {
       pasteJsonModalTitle.textContent = 'Add Individual Template';
-      pasteJsonKeyLabel.textContent = 'Patient Index or Override Key';
-      pasteJsonKeyInput.placeholder = 'e.g. 0 or 1';
+      pasteJsonKeyLabel.textContent = 'Template Key (e.g. general_anesthesia)';
+      pasteJsonKeyInput.placeholder = 'e.g. ent_individual_spec';
       pasteJsonTextarea.placeholder = JSON.stringify(DUMMY_INDIVIDUAL_TEMPLATE, null, 2);
     }
 
     pasteJsonModal.style.display = 'flex';
-    if (type === 'dept-bulk' || type === 'dept-indiv') {
+    if (type === 'dept-bulk' || type === 'indiv') {
       pasteJsonDeptSelect.focus();
     } else {
       pasteJsonKeyInput.focus();
@@ -964,9 +971,9 @@
       return;
     }
 
-    // Determine target department key if department action
+    // Determine target department key if department action or individual template action
     let deptKey = '';
-    if (currentPasteActionType === 'dept-bulk' || currentPasteActionType === 'dept-indiv') {
+    if (currentPasteActionType === 'dept-bulk' || (currentPasteActionType === 'indiv' && pasteJsonDeptSelect.value !== '__DEFAULT__')) {
       const selectedVal = pasteJsonDeptSelect.value;
       if (selectedVal === '__NEW__') {
         deptKey = pasteJsonDeptCustom.value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
@@ -995,12 +1002,6 @@
       }
       parsed.departments[deptKey].templates[key] = insertedObj;
       showAlert(`➕ Added bulk template "${key}" to department "${deptKey}"!`, 'success');
-    } else if (currentPasteActionType === 'dept-indiv') {
-      if (!parsed.departments[deptKey].individualTemplates) {
-        parsed.departments[deptKey].individualTemplates = {};
-      }
-      parsed.departments[deptKey].individualTemplates[key] = insertedObj;
-      showAlert(`➕ Added individual template "${key}" to department "${deptKey}"!`, 'success');
     } else if (currentPasteActionType === 'bulk') {
       if (!parsed.defaultTemplates || typeof parsed.defaultTemplates !== 'object') {
         parsed.defaultTemplates = {};
@@ -1008,11 +1009,19 @@
       parsed.defaultTemplates[key] = insertedObj;
       showAlert(`➕ Added bulk template "${key}" to default templates!`, 'success');
     } else if (currentPasteActionType === 'indiv') {
-      if (!parsed.otPatientTemplates || typeof parsed.otPatientTemplates !== 'object') {
-        parsed.otPatientTemplates = {};
+      if (pasteJsonDeptSelect.value === '__DEFAULT__') {
+        if (!parsed.defaultTemplates || typeof parsed.defaultTemplates !== 'object') {
+          parsed.defaultTemplates = {};
+        }
+        parsed.defaultTemplates[key] = insertedObj;
+        showAlert(`➕ Added individual template "${key}" to default templates!`, 'success');
+      } else {
+        if (!parsed.departments[deptKey].individualTemplates) {
+          parsed.departments[deptKey].individualTemplates = {};
+        }
+        parsed.departments[deptKey].individualTemplates[key] = insertedObj;
+        showAlert(`➕ Added individual template "${key}" to department "${deptKey}"!`, 'success');
       }
-      parsed.otPatientTemplates[key] = insertedObj;
-      showAlert(`➕ Added individual template override for "${key}"!`, 'success');
     }
 
     currentJsonData = parsed;
@@ -1024,9 +1033,6 @@
 
   document.getElementById('btn-add-dept-bulk-template')?.addEventListener('click', () => {
     openPasteJsonModal('dept-bulk');
-  });
-  document.getElementById('btn-add-dept-indiv-template')?.addEventListener('click', () => {
-    openPasteJsonModal('dept-indiv');
   });
   document.getElementById('btn-add-bulk-template')?.addEventListener('click', () => {
     openPasteJsonModal('bulk');
