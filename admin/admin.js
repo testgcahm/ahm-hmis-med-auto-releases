@@ -810,6 +810,21 @@
     ]
   };
 
+  const DUMMY_ITEMS_JSON = [
+    { "item": "Inj. PROPOFOL 1% 20ml", "quantity": 1 },
+    { "item": "INJ. ATROPINE 0.6mg/ml", "quantity": 2 },
+    { "item": "SURGICAL GLOVES 7.5", "quantity": 1 }
+  ];
+
+  function copyDummyItemsJson() {
+    const text = JSON.stringify(DUMMY_ITEMS_JSON, null, 2);
+    navigator.clipboard.writeText(text).then(() => {
+      showAlert('📋 Sample items JSON copied to clipboard!', 'success');
+    }).catch(err => {
+      showAlert('Failed to copy: ' + err, 'error');
+    });
+  }
+
   // Toolbar button listeners
   document.getElementById('btn-format')?.addEventListener('click', formatJson);
   document.getElementById('btn-minify')?.addEventListener('click', minifyJson);
@@ -834,6 +849,128 @@
       showAlert('Failed to copy: ' + err, 'error');
     });
   });
+  document.getElementById('btn-copy-dummy-items-json')?.addEventListener('click', copyDummyItemsJson);
+  document.getElementById('btn-copy-dummy-items-toolbar')?.addEventListener('click', copyDummyItemsJson);
+
+  // ── Paste Items JSON Modal Handler ──
+  const pasteItemsJsonModal = document.getElementById('paste-items-json-modal');
+  const pasteItemsTextarea = document.getElementById('paste-items-json-textarea');
+
+  document.getElementById('btn-open-paste-items-json-modal')?.addEventListener('click', () => {
+    const currentTemplates = (selectedDeptKey === '__DEFAULTS__')
+      ? currentJsonData?.defaultTemplates
+      : currentJsonData?.departments?.[selectedDeptKey]?.templates;
+
+    if (!currentTemplates || !selectedTemplateKey || !currentTemplates[selectedTemplateKey]) {
+      showAlert('Please select an active template first.', 'warning');
+      return;
+    }
+
+    if (pasteItemsTextarea) {
+      pasteItemsTextarea.value = '';
+      pasteItemsTextarea.placeholder = JSON.stringify(DUMMY_ITEMS_JSON, null, 2);
+    }
+    if (pasteItemsJsonModal) {
+      pasteItemsJsonModal.style.display = 'flex';
+    }
+  });
+
+  document.getElementById('btn-close-paste-items-json-modal')?.addEventListener('click', () => {
+    if (pasteItemsJsonModal) pasteItemsJsonModal.style.display = 'none';
+  });
+  document.getElementById('btn-cancel-paste-items-json-modal')?.addEventListener('click', () => {
+    if (pasteItemsJsonModal) pasteItemsJsonModal.style.display = 'none';
+  });
+
+  document.getElementById('btn-paste-items-clipboard')?.addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && pasteItemsTextarea) {
+        pasteItemsTextarea.value = text;
+        showAlert('📋 Pasted content from clipboard!', 'info');
+      } else {
+        showAlert('Clipboard is empty.', 'warning');
+      }
+    } catch (err) {
+      showAlert('Unable to read clipboard automatically. Please press Ctrl+V inside the text area.', 'info');
+    }
+  });
+
+  document.getElementById('btn-confirm-paste-items-json-modal')?.addEventListener('click', () => {
+    const rawText = pasteItemsTextarea?.value?.trim();
+    if (!rawText) {
+      showAlert('Please paste valid items JSON.', 'warning');
+      return;
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (err) {
+      showAlert('Invalid JSON syntax: ' + err.message, 'error');
+      return;
+    }
+
+    let itemsArray = [];
+    if (Array.isArray(parsed)) {
+      itemsArray = parsed;
+    } else if (parsed && Array.isArray(parsed.items)) {
+      itemsArray = parsed.items;
+    } else if (parsed && typeof parsed === 'object') {
+      itemsArray = [parsed];
+    }
+
+    if (itemsArray.length === 0) {
+      showAlert('No valid items found in JSON.', 'warning');
+      return;
+    }
+
+    const normalizedItems = itemsArray.map(it => {
+      if (typeof it === 'string') {
+        return { item: it.trim(), quantity: 1 };
+      }
+      if (typeof it === 'object' && it !== null) {
+        const name = it.item || it.name || it.description || '';
+        const qty = parseInt(it.quantity || it.qty || it.amount || 1, 10) || 1;
+        return { item: String(name).trim(), quantity: qty };
+      }
+      return { item: String(it).trim(), quantity: 1 };
+    }).filter(it => it.item.length > 0);
+
+    if (normalizedItems.length === 0) {
+      showAlert('No items with non-empty descriptions were found in JSON.', 'warning');
+      return;
+    }
+
+    const currentTemplates = (selectedDeptKey === '__DEFAULTS__')
+      ? currentJsonData.defaultTemplates
+      : currentJsonData.departments[selectedDeptKey]?.templates;
+
+    if (!currentTemplates || !currentTemplates[selectedTemplateKey]) {
+      showAlert('No active template selected.', 'error');
+      return;
+    }
+
+    const tpl = currentTemplates[selectedTemplateKey];
+    if (!Array.isArray(tpl.items)) {
+      tpl.items = [];
+    }
+
+    const modeEl = document.querySelector('input[name="items-json-mode"]:checked');
+    const isOverwrite = modeEl && modeEl.value === 'overwrite';
+
+    if (isOverwrite) {
+      tpl.items = normalizedItems;
+    } else {
+      tpl.items.push(...normalizedItems);
+    }
+
+    if (pasteItemsJsonModal) pasteItemsJsonModal.style.display = 'none';
+    syncVisualToJson();
+    renderVisualEditor();
+    showAlert(`✨ Successfully ${isOverwrite ? 'replaced' : 'appended'} ${normalizedItems.length} item(s) in template "${selectedTemplateKey}"!`, 'success');
+  });
+
   // ── Paste AI JSON Modal Handler ──
   const pasteJsonModal = document.getElementById('paste-json-modal');
   const pasteJsonModalTitle = document.getElementById('paste-json-modal-title');

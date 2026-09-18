@@ -705,6 +705,12 @@
             <input type="number" id="new-item-qty" class="table-input" placeholder="Qty" value="1" min="1" style="width: 80px;" />
             <button type="button" class="btn btn-primary" id="btn-add-item-row" style="white-space: nowrap;">➕ Add Item</button>
           </div>
+
+          <!-- Items JSON Actions -->
+          <div style="display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn" id="btn-copy-dummy-items-json" title="Copy sample items JSON format for AI">📋 Copy Dummy Items JSON</button>
+            <button type="button" class="btn btn-primary" id="btn-open-paste-items-json-modal" title="Add/import items into active template using JSON">📥 Add Items via JSON</button>
+          </div>
         </div>
       </div>
     </div>
@@ -718,6 +724,7 @@
           <button type="button" class="btn" id="btn-validate" title="Validate JSON syntax">✓ Validate</button>
           <button type="button" class="btn" id="btn-copy-dummy-template" title="Copy sample bulk template JSON to clipboard">📋 Copy Dummy Bulk Template</button>
           <button type="button" class="btn" id="btn-copy-dummy-indiv-template" title="Copy sample individual template JSON to clipboard">📋 Copy Dummy Individual Template</button>
+          <button type="button" class="btn" id="btn-copy-dummy-items-toolbar" title="Copy sample items JSON format for AI">📋 Copy Dummy Items JSON</button>
           <button type="button" class="btn" id="btn-add-dept-bulk-template" title="Add Bulk templates in selected department">➕ Add Bulk template in x department</button>
           <button type="button" class="btn" id="btn-add-bulk-template" title="Add Bulk template to default templates">➕ Add Bulk template in default templates</button>
           <button type="button" class="btn" id="btn-add-indiv-template" title="Add individual template">➕ Add individual template</button>
@@ -825,6 +832,43 @@
       <div class="modal-actions">
         <button type="button" class="btn" id="btn-cancel-paste-json-modal">Cancel</button>
         <button type="button" class="btn btn-primary" id="btn-confirm-paste-json-modal">Add to JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paste Items JSON Modal -->
+  <div id="paste-items-json-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 class="modal-title">📥 Add Items via JSON</h2>
+        <button type="button" class="modal-close" id="btn-close-paste-items-json-modal">✕</button>
+      </div>
+      <p style="font-size: 12px; color: var(--subtitle); line-height: 1.4; margin-bottom: 12px;">
+        Paste JSON containing items array (e.g. from AI). Choose whether to append to existing items or overwrite them.
+      </p>
+
+      <div style="margin-bottom: 12px; display: flex; gap: 16px; align-items: center; font-size: 13px; color: var(--text-primary);">
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="radio" name="items-json-mode" value="append" checked />
+          <span><b>Append</b> (add to existing items)</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="radio" name="items-json-mode" value="overwrite" />
+          <span><b>Overwrite</b> (replace existing items)</span>
+        </label>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 12px; font-weight: 600; color: var(--subtitle); display: block; margin-bottom: 4px;">Items JSON Payload</label>
+        <textarea id="paste-items-json-textarea" class="modal-input" style="height: 160px; font-family: monospace; font-size: 12px; resize: vertical;" placeholder='Paste JSON items array here... e.g. [{"item": "Inj. PROPOFOL", "quantity": 1}]'></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px;">
+        <button type="button" class="btn" id="btn-paste-items-clipboard" style="font-size: 12px;">📋 Paste Clipboard</button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn" id="btn-cancel-paste-items-json-modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btn-confirm-paste-items-json-modal">Import Items</button>
+        </div>
       </div>
     </div>
   </div>

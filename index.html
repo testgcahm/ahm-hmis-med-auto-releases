@@ -511,7 +511,7 @@
     <div class="footer-meta">
       <div>
         Release Date:
-        <strong id="release-date" style="color: #cbd5e1;">2026-09-17</strong>
+        <strong id="release-date" style="color: #cbd5e1;">2026-09-18</strong>
       </div>
 
       <div style="margin-top: 4px;">
@@ -608,6 +608,26 @@
         }
         if (btnUpdater) {
           btnUpdater.href = 'update.bat?t=' + timestamp;
+          btnUpdater.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+              const res = await fetch('update.bat?t=' + Date.now(), { cache: 'no-store' });
+              if (res.ok) {
+                const text = await res.text();
+                const blob = new Blob([text], { type: 'application/x-bat' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'update.bat';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+                return;
+              }
+            } catch (_err) {}
+            window.location.href = 'update.bat?t=' + Date.now();
+          });
         }
       })
       .catch(() => { });
