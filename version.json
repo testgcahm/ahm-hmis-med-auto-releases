@@ -1,9 +1,9 @@
 {
-  "version": "2.0.9",
-  "versionName": "2.0.9",
-  "betaVersion": "2.0.9.1",
-  "betaVersionName": "2.0.9-beta",
-  "releaseDate": "2026-09-18",
+  "version": "2.0.10",
+  "versionName": "2.0.10",
+  "betaVersion": "2.0.10.1",
+  "betaVersionName": "2.0.10-beta",
+  "releaseDate": "2026-09-19",
   "minExtensionVersion": "1.0.0",
   "changelog": [
     "✅ OT Slip: Discharge selection now re-indexes correctly after autosave",
