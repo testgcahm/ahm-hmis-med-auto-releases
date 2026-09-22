@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-09-13T23:25:00.000Z",
+  "lastUpdated": "2026-09-22T23:23:00.000Z",
   "departments": {
     "ENT": {
       "name": "ENT (Ear, Nose, Throat)",
@@ -268,6 +268,95 @@
         {
           "item": "GAUZE PIECE",
           "quantity": 4
+        }
+      ]
+    },
+    "spinal_anesthesia": {
+      "name": "Spinal Anesthesia",
+      "items": [
+        {
+          "item": "INJ.LIGNOCAINE",
+          "quantity": 1
+        },
+        {
+          "item": "INJ.TRAMAL",
+          "quantity": 1
+        },
+        {
+          "item": "INJ.DEXA",
+          "quantity": 1
+        },
+        {
+          "item": "INJ.ATROPINE",
+          "quantity": 1
+        },
+        {
+          "item": "AINJ.ADRENALINE",
+          "quantity": 1
+        },
+        {
+          "item": "INJ.BUPIVACAINE (2ML)",
+          "quantity": 1
+        },
+        {
+          "item": "INJ.NORMAL SALINE 100ML",
+          "quantity": 1
+        },
+        {
+          "item": "INJ.NORMAL SALINE 1000ML",
+          "quantity": 1
+        },
+        {
+          "item": "INJ.RINGER LACTATE 1000ML",
+          "quantity": 1
+        },
+        {
+          "item": "ECG ELECTRODES",
+          "quantity": 3
+        },
+        {
+          "item": "ABDOMINAL SPONGE",
+          "quantity": 4
+        },
+        {
+          "item": "BLADE #23",
+          "quantity": 1
+        },
+        {
+          "item": "D/S 10CC",
+          "quantity": 3
+        },
+        {
+          "item": "D/S 5CC",
+          "quantity": 5
+        },
+        {
+          "item": "SURGICAL GLOVES",
+          "quantity": 6
+        },
+        {
+          "item": "GAUZE PIECE",
+          "quantity": 3
+        },
+        {
+          "item": "PROLENE 2-0",
+          "quantity": 1
+        },
+        {
+          "item": "VICRYL 1",
+          "quantity": 1
+        },
+        {
+          "item": "VICRYL 2-0",
+          "quantity": 1
+        },
+        {
+          "item": "DRIP SET",
+          "quantity": 1
+        },
+        {
+          "item": "LP NEEDLE",
+          "quantity": 1
         }
       ]
     }
