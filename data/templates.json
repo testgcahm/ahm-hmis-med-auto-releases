@@ -1,0 +1,275 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-09-13T23:25:00.000Z",
+  "departments": {
+    "ENT": {
+      "name": "ENT (Ear, Nose, Throat)",
+      "aliases": [
+        "ENT",
+        "ENT WARD",
+        "E.N.T",
+        "OT-ENT"
+      ],
+      "templates": {
+        "ent_general_anesthesia": {
+          "name": "General Anesthesia (ENT)",
+          "department": "ENT",
+          "items": [
+            {
+              "item": "Inj. PROPOFOL",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. ATRACURIUM",
+              "quantity": 3
+            },
+            {
+              "item": "Inj. SUX",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. LIGNOCAINE",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. ATROPINE",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. ADRENALINE",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. DEXA",
+              "quantity": 2
+            },
+            {
+              "item": "Inj. NELBIN",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. REVERSAL",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. SYNEPHRINE",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. PARACETAMOL",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. NORMAL SALINE 100ML",
+              "quantity": 2
+            },
+            {
+              "item": "Inj. NORMAL SALINE 1000ML",
+              "quantity": 1
+            },
+            {
+              "item": "Inj. RINGER LACTATE 1000ML",
+              "quantity": 1
+            },
+            {
+              "item": "ECG ELECTRODES",
+              "quantity": 3
+            },
+            {
+              "item": "BLADE #15",
+              "quantity": 1
+            },
+            {
+              "item": "D/S 10CC",
+              "quantity": 3
+            },
+            {
+              "item": "D/S 5CC",
+              "quantity": 5
+            },
+            {
+              "item": "SURGICAL GLOVES - 7.5",
+              "quantity": 6
+            },
+            {
+              "item": "GAUZE PIECE",
+              "quantity": 3
+            },
+            {
+              "item": "PROLENE 2-0",
+              "quantity": 1
+            },
+            {
+              "item": "VICRYL 1",
+              "quantity": 1
+            },
+            {
+              "item": "VICRYL 2-0",
+              "quantity": 1
+            },
+            {
+              "item": "ETT",
+              "quantity": 1
+            },
+            {
+              "item": "DRIP SET",
+              "quantity": 2
+            }
+          ]
+        }
+      }
+    }
+  },
+  "defaultTemplates": {
+    "general_anesthesia": {
+      "name": "General Anesthesia",
+      "items": [
+        {
+          "item": "Inj. PROPOFOL",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. ATRACURIUM",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. SUX",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. LIGNOCAINE",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. ATROPINE",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. ADRENALINE",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. DEXA",
+          "quantity": 2
+        },
+        {
+          "item": "Inj. OMEPRAZOLE",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. TRAMAL",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. REVERSAL",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. SYNEPHRINE",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. PARACETAMOL",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. NORMAL SALINE 100ML",
+          "quantity": 2
+        },
+        {
+          "item": "Inj. NORMAL SALINE 1000ML",
+          "quantity": 1
+        },
+        {
+          "item": "Inj. RINGER LACTATE 1000ML",
+          "quantity": 1
+        },
+        {
+          "item": "ECG ELECTRODES",
+          "quantity": 3
+        },
+        {
+          "item": "ABDOMINAL SPONGE",
+          "quantity": 3
+        },
+        {
+          "item": "BLADE #23",
+          "quantity": 1
+        },
+        {
+          "item": "D/S 10CC",
+          "quantity": 3
+        },
+        {
+          "item": "D/S 5CC",
+          "quantity": 5
+        },
+        {
+          "item": "SURGICAL GLOVES",
+          "quantity": 6
+        },
+        {
+          "item": "GAUZE PIECE",
+          "quantity": 3
+        },
+        {
+          "item": "PROLENE 2-0",
+          "quantity": 1
+        },
+        {
+          "item": "VICRYL 1",
+          "quantity": 1
+        },
+        {
+          "item": "VICRYL 2-0",
+          "quantity": 1
+        },
+        {
+          "item": "ETT",
+          "quantity": 1
+        },
+        {
+          "item": "DRIP SET",
+          "quantity": 2
+        }
+      ]
+    },
+    "local_anesthesia": {
+      "name": "Local Anesthesia",
+      "items": [
+        {
+          "item": "Inj. LIGNOCAINE",
+          "quantity": 1
+        },
+        {
+          "item": "D/S 5CC",
+          "quantity": 5
+        },
+        {
+          "item": "D/S 10CC",
+          "quantity": 3
+        },
+        {
+          "item": "CREPE BANDAGE",
+          "quantity": 2
+        },
+        {
+          "item": "BLADE #23",
+          "quantity": 1
+        },
+        {
+          "item": "BLADE #15",
+          "quantity": 1
+        },
+        {
+          "item": "SURGICAL GLOVES",
+          "quantity": 5
+        },
+        {
+          "item": "GAUZE PIECE",
+          "quantity": 4
+        }
+      ]
+    }
+  }
+}
