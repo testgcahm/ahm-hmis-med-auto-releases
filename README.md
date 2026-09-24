@@ -8,8 +8,8 @@
 
 | Channel | Version | Direct Download | Auto-Updater Script |
 | :--- | :--- | :--- | :--- |
-| 🟢 **Stable** | `v2.0.11` | [⬇️ `extension.zip`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/extension.zip) | [⚡ `update.bat`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/update.bat) |
-| 🟡 **Beta** | `v2.0.11-beta` | [⬇️ `beta.zip`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/beta.zip) | [⚡ `update.bat`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/update.bat) |
+| 🟢 **Stable** | `v2.0.12` | [⬇️ `extension.zip`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/extension.zip) | [⚡ `update.bat`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/update.bat) |
+| 🟡 **Beta** | `v2.0.12-beta` | [⬇️ `beta.zip`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/beta.zip) | [⚡ `update.bat`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/update.bat) |
 
 - 🌐 **Web Update Portal (GitHub Pages)**: [https://testgcahm.github.io/ahm-hmis-med-auto-releases/](https://testgcahm.github.io/ahm-hmis-med-auto-releases/)
 - 📄 **Live Version Metadata**: [`version.json`](https://raw.githubusercontent.com/testgcahm/ahm-hmis-med-auto-releases/main/version.json)
