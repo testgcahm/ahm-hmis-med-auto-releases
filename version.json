@@ -1,9 +1,9 @@
 {
-  "version": "2.0.17",
-  "versionName": "2.0.17",
-  "betaVersion": "2.0.17.1",
-  "betaVersionName": "2.0.17-beta",
-  "releaseDate": "2026-10-27",
+  "version": "2.0.18",
+  "versionName": "2.0.18",
+  "betaVersion": "2.0.18.1",
+  "betaVersionName": "2.0.18-beta",
+  "releaseDate": "2026-10-28",
   "minExtensionVersion": "1.0.0",
   "changelog": [
     "🔬 Templates: Added Manual Mode to fill investigations into open HMIS Create/Edit Template section",
