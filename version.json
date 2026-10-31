@@ -3,7 +3,7 @@
   "versionName": "2.0.28",
   "betaVersion": "2.0.28.1",
   "betaVersionName": "2.0.28-beta",
-  "releaseDate": "2026-10-30",
+  "releaseDate": "2026-10-31",
   "minExtensionVersion": "1.0.0",
   "changelog": [
     "🔬 Templates: Added Manual Mode to fill investigations into open HMIS Create/Edit Template section",
