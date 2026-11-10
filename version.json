@@ -1,9 +1,9 @@
 {
-  "version": "2.0.39",
-  "versionName": "2.0.39",
-  "betaVersion": "2.0.39.1",
-  "betaVersionName": "2.0.39-beta",
-  "releaseDate": "2026-11-09",
+  "version": "2.0.40",
+  "versionName": "2.0.40",
+  "betaVersion": "2.0.40.1",
+  "betaVersionName": "2.0.40-beta",
+  "releaseDate": "2026-11-10",
   "minExtensionVersion": "1.0.0",
   "changelog": [
     "🏥 Discharge: Fixed false errors and 500 redirects on post-discharge by auto-confirming successful discharge",
